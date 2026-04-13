@@ -33,6 +33,7 @@ def main():
 
     player = Player(x,y)
     score = 0
+    score_rollover = 0
     asteroid_field = AsteroidField()
 
     while True:
@@ -40,6 +41,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+
+        if score >= 5000:
+            player.lives += 1
+            score_rollover += 5000
+            score = 0
 
         screen.fill("black")
 
@@ -62,11 +68,18 @@ def main():
         for obj in asteroids:
             
             if obj.collides_with(player):
-                log_event("player_hit")
-                log_event(f"player_final_score-{score}")
-                print("Game over!")
-                print(f"Final Score: {score}")
-                sys.exit()
+                if player.lives == 0:
+                    final_score = score + score_rollover
+
+                    log_event("player_hit")
+                    log_event(f"player_final_score-{score}")
+
+                    print("Game over!")
+                    print(f"Final Score: {final_score}")
+                    sys.exit()
+                else:
+                    player.lives -= 1
+                    player.position = pygame.Vector2(x, y)
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
